@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Finanças - Gestor Pessoal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+<body class="text-slate-800 bg-slate-50 min-h-screen flex flex-col antialiased">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-emerald-200">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-slate-900 leading-tight">Minhas Finanças</h1>
+                        <p class="text-xs text-slate-500">Gestor Pessoal & Planejamento</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex items-center space-x-1">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-3 py-2 rounded-lg text-xs font-medium transition-colors text-emerald-600 bg-emerald-50">
+                        <i class="fa-solid fa-chart-pie mr-1.5"></i>Visão Geral
+                    </button>
+                    <button onclick="switchTab('cards')" id="nav-cards" class="nav-btn px-3 py-2 rounded-lg text-xs font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                        <i class="fa-solid fa-credit-card mr-1.5"></i>Cartões
+                    </button>
+                    <button onclick="switchTab('plans')" id="nav-plans" class="nav-btn px-3 py-2 rounded-lg text-xs font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                        <i class="fa-solid fa-repeat mr-1.5"></i>Planos & Metas
+                    </button>
+                    <button onclick="switchTab('debts')" id="nav-debts" class="nav-btn px-3 py-2 rounded-lg text-xs font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                        <i class="fa-solid fa-hand-holding-dollar mr-1.5"></i>Dívidas & Contas
+                    </button>
+                    <button onclick="switchTab('transactions')" id="nav-transactions" class="nav-btn px-3 py-2 rounded-lg text-xs font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                        <i class="fa-solid fa-arrow-up-right-dots mr-1.5"></i>Gastos & Receitas
+                    </button>
+                </nav>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="openQuickAddModal()" class="px-3.5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>+ Adicionar</span>
+                    </button>
+                    <button onclick="confirmResetAll()" title="Zerar todos os dados" class="px-3 py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-200 flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span class="hidden sm:inline">Zerar Tudo</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Tabs -->
+        <div class="md:hidden border-t border-slate-200 bg-slate-50 px-2 py-2 flex justify-around text-xs font-medium">
+            <button onclick="switchTab('dashboard')" id="mobile-nav-dashboard" class="mobile-nav-btn py-1 px-2 rounded text-emerald-600 font-bold">
+                <i class="fa-solid fa-chart-pie block text-base mx-auto mb-0.5"></i>Geral
+            </button>
+            <button onclick="switchTab('cards')" id="mobile-nav-cards" class="mobile-nav-btn py-1 px-2 rounded text-slate-600">
+                <i class="fa-solid fa-credit-card block text-base mx-auto mb-0.5"></i>Cartões
+            </button>
+            <button onclick="switchTab('plans')" id="mobile-nav-plans" class="mobile-nav-btn py-1 px-2 rounded text-slate-600">
+                <i class="fa-solid fa-repeat block text-base mx-auto mb-0.5"></i>Planos
+            </button>
+            <button onclick="switchTab('debts')" id="mobile-nav-debts" class="mobile-nav-btn py-1 px-2 rounded text-slate-600">
+                <i class="fa-solid fa-hand-holding-dollar block text-base mx-auto mb-0.5"></i>Dívidas
+            </button>
+            <button onclick="switchTab('transactions')" id="mobile-nav-transactions" class="mobile-nav-btn py-1 px-2 rounded text-slate-600">
+                <i class="fa-solid fa-arrow-up-right-dots block text-base mx-auto mb-0.5"></i>Gastos
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+        
+        <!-- Quick Action Bar -->
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-4 text-white mb-6 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <h2 class="text-base font-bold">Organize suas Finanças Facilmente</h2>
+                <p class="text-xs text-emerald-100">Escolha onde cadastrar para manter tudo no lugar certo:</p>
+            </div>
+            <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                <button onclick="openCardModal()" class="flex-1 sm:flex-none px-3.5 py-2 bg-white text-purple-800 font-semibold text-xs rounded-xl shadow hover:bg-purple-50 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-credit-card text-purple-600"></i> + Novo Cartão
+                </button>
+                <button onclick="openPlanModal()" class="flex-1 sm:flex-none px-3.5 py-2 bg-emerald-800/80 hover:bg-emerald-800 text-white font-semibold text-xs rounded-xl transition border border-emerald-500/30 flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-repeat text-emerald-300"></i> + Novo Plano
+                </button>
+                <button onclick="openDebtModal()" class="flex-1 sm:flex-none px-3.5 py-2 bg-emerald-800/80 hover:bg-emerald-800 text-white font-semibold text-xs rounded-xl transition border border-emerald-500/30 flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-hand-holding-dollar text-amber-300"></i> + Dívida
+                </button>
+                <button onclick="openTransactionModal()" class="flex-1 sm:flex-none px-3.5 py-2 bg-emerald-800/80 hover:bg-emerald-800 text-white font-semibold text-xs rounded-xl transition border border-emerald-500/30 flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-arrow-up-right-dots text-emerald-300"></i> + Gasto / Receita
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Saldo Atual -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between text-emerald-600 text-xs font-semibold uppercase tracking-wider mb-1">
+                    <span>Saldo Atual</span>
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <div id="kpi-balance" class="text-xl sm:text-2xl font-bold text-emerald-600">R$ 0,00</div>
+                <p class="text-[11px] text-slate-400 mt-1">Receitas - Gastos</p>
+            </div>
+
+            <!-- Despesas Pessoais -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between text-rose-600 text-xs font-semibold uppercase tracking-wider mb-1">
+                    <span>Despesas Pessoais</span>
+                    <i class="fa-solid fa-arrow-trend-down"></i>
+                </div>
+                <div id="kpi-expenses" class="text-xl sm:text-2xl font-bold text-rose-600">R$ 0,00</div>
+                <p id="kpi-expenses-count" class="text-[11px] text-slate-400 mt-1">Saídas registradas</p>
+            </div>
+
+            <!-- Total de Planos Mensais -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between text-teal-600 text-xs font-semibold uppercase tracking-wider mb-1">
+                    <span>Total em Planos</span>
+                    <i class="fa-solid fa-repeat"></i>
+                </div>
+                <div id="kpi-plans" class="text-xl sm:text-2xl font-bold text-teal-600">R$ 0,00</div>
+                <p id="kpi-plans-count" class="text-[11px] text-slate-400 mt-1">Planos & Assinaturas</p>
+            </div>
+
+            <!-- Dívidas Pendentes -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between text-amber-600 text-xs font-semibold uppercase tracking-wider mb-1">
+                    <span>Dívidas Pendentes</span>
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+                <div id="kpi-debts" class="text-xl sm:text-2xl font-bold text-amber-600">R$ 0,00</div>
+                <p id="kpi-debts-count" class="text-[11px] text-slate-400 mt-1">Devendo a pessoas/bancos</p>
+            </div>
+        </div>
+
+        <section id="tab-dashboard" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Chart Box -->
+                <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-base font-bold text-slate-900">Gráfico de Distribuição de Gastos</h2>
+                        <span class="text-xs text-slate-400">Visão por Categoria</span>
+                    </div>
+                    <div class="h-64 relative flex items-center justify-center">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Próximos Vencimentos -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-base font-bold text-slate-900">Próximos Vencimentos</h2>
+                        <button onclick="switchTab('debts')" class="text-xs text-emerald-600 font-semibold hover:underline cursor-pointer">Ver Dívidas</button>
+                    </div>
+                    <div id="dashboard-debts-list" class="space-y-3 flex-grow overflow-y-auto max-h-[260px] custom-scrollbar pr-1">
+                        <!-- Dynamic Item -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumo dos Planos -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-base font-bold text-slate-900">Seus Planos e Assinaturas Ativas</h2>
+                    <button onclick="switchTab('plans')" class="text-xs text-emerald-600 font-semibold hover:underline cursor-pointer">Gerenciar Planos</button>
+                </div>
+                <div id="dashboard-plans-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Dynamic Items -->
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-cards" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Cartões de Crédito</h2>
+                    <p class="text-xs text-slate-500">Gerencie os limites, vencimentos e faturas dos seus cartões e da sua família.</p>
+                </div>
+                <button onclick="openCardModal()" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-purple-100 flex items-center gap-2 transition cursor-pointer">
+                    <i class="fa-solid fa-plus"></i> Novo Cartão
+                </button>
+            </div>
+            <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <section id="tab-plans" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Planos & Assinaturas Mensais</h2>
+                    <p class="text-xs text-slate-500">Cadastre seus planos, com valor mensal e dia de vencimento.</p>
+                </div>
+                <button onclick="openPlanModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-emerald-100 flex items-center gap-2 transition cursor-pointer">
+                    <i class="fa-solid fa-plus"></i> Novo Plano
+                </button>
+            </div>
+            <div id="plans-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <section id="tab-debts" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Dívidas & Empréstimos</h2>
+                    <p class="text-xs text-slate-500">Cadastre valores que você deve para pessoas, cartão de crédito ou instituições.</p>
+                </div>
+                <button onclick="openDebtModal()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-amber-100 flex items-center gap-2 transition cursor-pointer">
+                    <i class="fa-solid fa-plus"></i> Nova Dívida / Empréstimo
+                </button>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex flex-wrap justify-between items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <button onclick="filterDebts('all')" id="debt-filter-all" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white cursor-pointer">Todas</button>
+                        <button onclick="filterDebts('pending')" id="debt-filter-pending" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Pendentes</button>
+                        <button onclick="filterDebts('paid')" id="debt-filter-paid" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Pagas</button>
+                    </div>
+                    <span id="debts-summary-text" class="text-xs text-slate-500 font-medium">0 dívidas cadastradas</span>
+                </div>
+                <div class="divide-y divide-slate-100" id="debts-list-container"></div>
+            </div>
+        </section>
+
+        <section id="tab-transactions" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Gastos Pessoais & Entradas</h2>
+                    <p class="text-xs text-slate-500">Registre todas as suas saídas diárias e fontes de receita.</p>
+                </div>
+                <button onclick="openTransactionModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-emerald-100 flex items-center gap-2 transition cursor-pointer">
+                    <i class="fa-solid fa-plus"></i> Nova Movimentação
+                </button>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="tx-search" oninput="renderTransactions()" placeholder="Buscar movimentação..." class="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <select id="tx-filter-type" onchange="renderTransactions()" class="px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="all">Todos os tipos</option>
+                            <option value="income">Apenas Entradas</option>
+                            <option value="expense">Apenas Saídas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4">Descrição</th>
+                                <th class="py-3 px-4">Categoria</th>
+                                <th class="py-3 px-4">Data</th>
+                                <th class="py-3 px-4 text-right">Valor</th>
+                                <th class="py-3 px-4 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-table-body" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL: CARTÃO DE CRÉDITO -->
+    <div id="modal-card" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative">
+            <button onclick="closeModal('modal-card')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 id="card-modal-title" class="text-base font-bold text-slate-900 mb-4">Adicionar Cartão de Crédito</h3>
+            <form id="card-form" onsubmit="handleSaveCard(event)" class="space-y-4">
+                <input type="hidden" id="card-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nome do Cartão *</label>
+                    <input type="text" id="card-title" required placeholder="Ex: Meu Cartão, Cartão da Mãe" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Titular / Identificação</label>
+                    <input type="text" id="card-owner" placeholder="Ex: Meu Cartão, Mãe" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Limite Total (R$) *</label>
+                        <input type="number" step="0.01" id="card-limit" required placeholder="0.00" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Dia Vencimento *</label>
+                        <input type="number" min="1" max="31" id="card-due-day" required placeholder="10" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Utilizado Atualmente (R$)</label>
+                    <input type="number" step="0.01" id="card-used" placeholder="0.00" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-card')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl transition cursor-pointer">Salvar Cartão</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: PLANO / ASSINATURA -->
+    <div id="modal-plan" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative">
+            <button onclick="closeModal('modal-plan')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 id="plan-modal-title" class="text-base font-bold text-slate-900 mb-4">Adicionar Novo Plano / Assinatura</h3>
+            <form id="plan-form" onsubmit="handleSavePlan(event)" class="space-y-4">
+                <input type="hidden" id="plan-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nome do Plano / Serviço *</label>
+                    <input type="text" id="plan-title" required placeholder="Ex: Claro, Netflix, Academia" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Mensal (R$) *</label>
+                        <input type="number" step="0.01" id="plan-target" required placeholder="0.00" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Data do Vencimento *</label>
+                        <input type="date" id="plan-date" required class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-plan')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition cursor-pointer">Salvar Plano</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: DÍVIDA -->
+    <div id="modal-debt" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative">
+            <button onclick="closeModal('modal-debt')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 id="debt-modal-title" class="text-base font-bold text-slate-900 mb-4">Adicionar Dívida / Empréstimo</h3>
+            <form id="debt-form" onsubmit="handleSaveDebt(event)" class="space-y-4">
+                <input type="hidden" id="debt-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Pessoa / Banco a quem devo *</label>
+                    <input type="text" id="debt-title" required placeholder="Ex: Fulano, Empréstimo Banco, Cartão" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Valor Total (R$) *</label>
+                        <input type="number" step="0.01" id="debt-amount" required placeholder="0.00" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Data Prometida / Vencimento *</label>
+                        <input type="date" id="debt-date" required class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Categoria</label>
+                    <select id="debt-category" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="Pessoa Física / Amigo">Pessoa Física / Amigo</option>
+                        <option value="Empréstimo Banco">Empréstimo Banco</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Assinaturas / Serviços">Assinaturas / Serviços</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-debt')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition cursor-pointer">Salvar Dívida</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: MOVIMENTAÇÃO -->
+    <div id="modal-transaction" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative">
+            <button onclick="closeModal('modal-transaction')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-base font-bold text-slate-900 mb-4">Adicionar Gastos / Receitas</h3>
+            <form id="transaction-form" onsubmit="handleSaveTransaction(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl mb-3">
+                    <button type="button" id="tx-btn-expense" onclick="selectTxType('expense')" class="py-1.5 text-xs font-semibold rounded-lg bg-white shadow-sm text-rose-600 transition cursor-pointer">
+                        <i class="fa-solid fa-arrow-up text-xs mr-1"></i> Saída / Gasto
+                    </button>
+                    <button type="button" id="tx-btn-income" onclick="selectTxType('income')" class="py-1.5 text-xs font-semibold rounded-lg text-slate-600 transition cursor-pointer">
+                        <i class="fa-solid fa-arrow-down text-xs mr-1"></i> Entrada / Receita
+                    </button>
+                </div>
+                <input type="hidden" id="tx-type" value="expense">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Descrição *</label>
+                    <input type="text" id="tx-desc" required placeholder="Ex: Supermercado, Salário, Farmácia" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Valor (R$) *</label>
+                        <input type="number" step="0.01" id="tx-amount" required placeholder="0.00" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Data *</label>
+                        <input type="date" id="tx-date" required class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Categoria</label>
+                    <select id="tx-category" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="Alimentação">Alimentação</option>
+                        <option value="Assinaturas / Serviços">Assinaturas / Serviços</option>
+                        <option value="Moradia">Moradia</option>
+                        <option value="Transporte">Transporte</option>
+                        <option value="Lazer">Lazer</option>
+                        <option value="Saúde">Saúde</option>
+                        <option value="Salário / Renda">Salário / Renda</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-transaction')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition cursor-pointer">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRMAR ZERAR -->
+    <div id="modal-confirm-reset" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xs p-6 text-center">
+            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mb-1">Zerar Todos os Dados?</h3>
+            <p class="text-xs text-slate-500 mb-5">Esta ação apagará todos os seus cartões, planos, dívidas e lançamentos cadastrados.</p>
+            <div class="flex gap-2 justify-center">
+                <button onclick="closeModal('modal-confirm-reset')" class="w-1/2 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer">Cancelar</button>
+                <button onclick="executeResetAll()" class="w-1/2 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition cursor-pointer">Sim, Zerar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SELEÇÃO RÁPIDA -->
+    <div id="modal-quick-add" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 relative">
+            <button onclick="closeModal('modal-quick-add')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-base font-bold text-slate-900 mb-1">O que você quer adicionar?</h3>
+            <p class="text-xs text-slate-500 mb-4">Selecione onde cadastrar:</p>
+            <div class="space-y-3">
+                <button onclick="closeModal('modal-quick-add'); openCardModal();" class="w-full p-3 bg-slate-50 hover:bg-purple-50 hover:border-purple-200 border border-slate-200 rounded-xl text-left flex items-center gap-3 transition group cursor-pointer">
+                    <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-base group-hover:bg-purple-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-credit-card"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-900 text-xs">Cartão de Crédito</p>
+                        <p class="text-[11px] text-slate-500">Cadastre seu cartão ou o da sua mãe</p>
+                    </div>
+                </button>
+                <button onclick="closeModal('modal-quick-add'); openPlanModal();" class="w-full p-3 bg-slate-50 hover:bg-teal-50 hover:border-teal-200 border border-slate-200 rounded-xl text-left flex items-center gap-3 transition group cursor-pointer">
+                    <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-base group-hover:bg-teal-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-repeat"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-900 text-xs">Novo Plano / Assinatura</p>
+                        <p class="text-[11px] text-slate-500">Ex: Claro, Netflix, Internet</p>
+                    </div>
+                </button>
+                <button onclick="closeModal('modal-quick-add'); openDebtModal();" class="w-full p-3 bg-slate-50 hover:bg-amber-50 hover:border-amber-200 border border-slate-200 rounded-xl text-left flex items-center gap-3 transition group cursor-pointer">
+                    <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-base group-hover:bg-amber-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-900 text-xs">Dívida / Pessoa a Pagar</p>
+                        <p class="text-[11px] text-slate-500">Valores devidos a pessoas ou bancos</p>
+                    </div>
+                </button>
+                <button onclick="closeModal('modal-quick-add'); openTransactionModal();" class="w-full p-3 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 rounded-xl text-left flex items-center gap-3 transition group cursor-pointer">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-base group-hover:bg-emerald-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-arrow-up-right-dots"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-900 text-xs">Gasto do Dia a Dia ou Receita</p>
+                        <p class="text-[11px] text-slate-500">Compras diárias ou entradas de dinheiro</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'minhas_financas_app_data_v10';
+
+        let appState = {
+            cards: [],
+            plans: [],
+            debts: [],
+            transactions: []
+        };
+
+        let activeTab = 'dashboard';
+        let debtFilter = 'all';
+        let categoryChartInstance = null;
+
+        window.onload = function() {
+            loadState();
+            setupDefaultDates();
+            renderAll();
+        };
+
+        function loadState() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    appState = JSON.parse(saved);
+                    if (!appState.cards) appState.cards = [];
+                    if (!appState.plans) appState.plans = [];
+                    if (!appState.debts) appState.debts = [];
+                    if (!appState.transactions) appState.transactions = [];
+                } catch(e) {
+                    resetAppState();
+                }
+            } else {
+                resetAppState();
+            }
+        }
+
+        function resetAppState() {
+            const today = new Date().toISOString().split('T')[0];
+            appState = {
+                cards: [
+                    { id: 'card_1', title: 'Meu Cartão de Crédito', owner: 'Meu Cartão', limit: 2000.00, used: 0.00, dueDay: 10 },
+                    { id: 'card_2', title: 'Cartão da Mãe', owner: 'Cartão da Mãe', limit: 3000.00, used: 0.00, dueDay: 15 }
+                ],
+                plans: [
+                    { id: 'plan_1', title: 'Claro Controle', target: 36.00, dueDate: today }
+                ],
+                debts: [
+                    { id: 'debt_1', title: 'Fatura Netflix', amount: 21.90, dueDate: today, category: 'Assinaturas / Serviços', isPaid: false }
+                ],
+                transactions: []
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        }
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            renderAll();
+        }
+
+        function confirmResetAll() {
+            openModal('modal-confirm-reset');
+        }
+
+        function executeResetAll() {
+            localStorage.removeItem(STORAGE_KEY);
+            resetAppState();
+            closeModal('modal-confirm-reset');
+            renderAll();
+        }
+
+        function formatCurrency(value) {
+            const val = parseFloat(value) || 0;
+            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function setupDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            if (document.getElementById('plan-date')) document.getElementById('plan-date').value = today;
+            if (document.getElementById('debt-date')) document.getElementById('debt-date').value = today;
+            if (document.getElementById('tx-date')) document.getElementById('tx-date').value = today;
+        }
+
+        function switchTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn px-3 py-2 rounded-lg text-xs font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100";
+            });
+            const activeNavBtn = document.getElementById(`nav-${tabId}`);
+            if (activeNavBtn) {
+                activeNavBtn.className = "nav-btn px-3 py-2 rounded-lg text-xs font-medium transition-colors text-emerald-600 bg-emerald-50 font-semibold";
+            }
+
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                btn.className = "mobile-nav-btn py-1 px-2 rounded text-slate-600";
+            });
+            const activeMobileBtn = document.getElementById(`mobile-nav-${tabId}`);
+            if (activeMobileBtn) {
+                activeMobileBtn.className = "mobile-nav-btn py-1 px-2 rounded text-emerald-600 font-bold";
+            }
+            renderAll();
+        }
+
+        function openModal(modalId) {
+            const el = document.getElementById(modalId);
+            if (el) el.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            const el = document.getElementById(modalId);
+            if (el) el.classList.add('hidden');
+        }
+
+        function openQuickAddModal() {
+            openModal('modal-quick-add');
+        }
+
+        function openCardModal(card = null) {
+            if (card) {
+                document.getElementById('card-modal-title').textContent = 'Editar Cartão de Crédito';
+                document.getElementById('card-id').value = card.id;
+                document.getElementById('card-title').value = card.title;
+                document.getElementById('card-owner').value = card.owner || '';
+                document.getElementById('card-limit').value = card.limit;
+                document.getElementById('card-due-day').value = card.dueDay;
+                document.getElementById('card-used').value = card.used || 0;
+            } else {
+                document.getElementById('card-modal-title').textContent = 'Adicionar Cartão de Crédito';
+                document.getElementById('card-form').reset();
+                document.getElementById('card-id').value = '';
+            }
+            openModal('modal-card');
+        }
+
+        function handleSaveCard(e) {
+            e.preventDefault();
+            const id = document.getElementById('card-id').value;
+            const title = document.getElementById('card-title').value;
+            const owner = document.getElementById('card-owner').value;
+            const limit = parseFloat(document.getElementById('card-limit').value) || 0;
+            const dueDay = parseInt(document.getElementById('card-due-day').value) || 1;
+            const used = parseFloat(document.getElementById('card-used').value) || 0;
+
+            if (id) {
+                const index = appState.cards.findIndex(c => c.id === id);
+                if (index !== -1) {
+                    appState.cards[index] = { ...appState.cards[index], title, owner, limit, dueDay, used };
+                }
+            } else {
+                appState.cards.push({ id: 'card_' + Date.now(), title, owner, limit, dueDay, used });
+            }
+            saveState();
+            closeModal('modal-card');
+        }
+
+        function deleteCard(id) {
+            appState.cards = appState.cards.filter(c => c.id !== id);
+            saveState();
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cards-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (appState.cards.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-8 rounded-2xl border border-slate-200 text-center">
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-credit-card text-xl"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-800">Nenhum cartão cadastrado</h3>
+                        <p class="text-xs text-slate-400 mt-1 mb-4">Cadastre seu cartão ou o cartão da sua mãe.</p>
+                        <button onclick="openCardModal()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-plus"></i> Adicionar Cartão
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            appState.cards.forEach(card => {
+                const limit = parseFloat(card.limit) || 0;
+                const used = parseFloat(card.used) || 0;
+                const available = Math.max(0, limit - used);
+                const percentUsed = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+
+                const cardEl = document.createElement('div');
+                cardEl.className = "bg-gradient-to-br from-slate-900 to-purple-900 text-white p-5 rounded-2xl shadow-lg flex flex-col justify-between relative overflow-hidden";
+                cardEl.innerHTML = `
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-white/20 text-purple-200">${card.owner || 'Cartão'}</span>
+                                <h3 class="font-bold text-lg leading-tight mt-1">${card.title}</h3>
+                            </div>
+                            <div class="flex gap-1 text-slate-300">
+                                <button onclick='openCardModal(${JSON.stringify(card)})' class="p-1 hover:text-white cursor-pointer" title="Editar"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
+                                <button onclick="deleteCard('${card.id}')" class="p-1 hover:text-rose-400 cursor-pointer" title="Excluir"><i class="fa-solid fa-trash text-xs"></i></button>
+                            </div>
+                        </div>
+                        <div class="space-y-2 my-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-300">Limite Utilizado:</span>
+                                <span class="font-bold">${formatCurrency(used)}</span>
+                            </div>
+                            <div class="w-full bg-white/20 rounded-full h-2">
+                                <div class="bg-purple-400 h-2 rounded-full" style="width: ${percentUsed}%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs pt-1">
+                                <span class="text-slate-300">Disponível: <strong class="text-emerald-400">${formatCurrency(available)}</strong></span>
+                                <span class="text-slate-300">Limite: <strong>${formatCurrency(limit)}</strong></span>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-white/10 flex justify-between items-center text-xs text-purple-200">
+                            <span><i class="fa-regular fa-calendar mr-1"></i> Vencimento: todo dia <strong>${card.dueDay}</strong></span>
+                            ${used > limit ? '<span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">Excedido</span>' : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(cardEl);
+            });
+        }
+
+        function openPlanModal(plan = null) {
+            if (plan) {
+                document.getElementById('plan-modal-title').textContent = 'Editar Plano / Assinatura';
+                document.getElementById('plan-id').value = plan.id;
+                document.getElementById('plan-title').value = plan.title;
+                document.getElementById('plan-target').value = plan.target;
+                document.getElementById('plan-date').value = plan.dueDate;
+            } else {
+                document.getElementById('plan-modal-title').textContent = 'Adicionar Novo Plano / Assinatura';
+                document.getElementById('plan-form').reset();
+                document.getElementById('plan-id').value = '';
+                setupDefaultDates();
+            }
+            openModal('modal-plan');
+        }
+
+        function handleSavePlan(e) {
+            e.preventDefault();
+            const id = document.getElementById('plan-id').value;
+            const title = document.getElementById('plan-title').value;
+            const target = parseFloat(document.getElementById('plan-target').value) || 0;
+            const dueDate = document.getElementById('plan-date').value;
+
+            if (id) {
+                const index = appState.plans.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    appState.plans[index] = { ...appState.plans[index], title, target, dueDate };
+                }
+            } else {
+                appState.plans.push({ id: 'plan_' + Date.now(), title, target, dueDate });
+            }
+            saveState();
+            closeModal('modal-plan');
+        }
+
+        function deletePlan(id) {
+            appState.plans = appState.plans.filter(p => p.id !== id);
+            saveState();
+        }
+
+        function renderPlans() {
+            const container = document.getElementById('plans-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (appState.plans.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-8 rounded-2xl border border-slate-200 text-center">
+                        <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-repeat text-xl"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-800">Nenhum plano cadastrado</h3>
+                        <p class="text-xs text-slate-400 mt-1 mb-4">Cadastre assinaturas como Claro, Netflix, Internet.</p>
+                        <button onclick="openPlanModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-plus"></i> Adicionar Plano
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            appState.plans.forEach(plan => {
+                const formattedDate = plan.dueDate ? plan.dueDate.split('-').reverse().join('/') : '';
+                const planEl = document.createElement('div');
+                planEl.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between";
+                planEl.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-lg">
+                                <i class="fa-solid fa-repeat"></i>
+                            </div>
+                            <div class="flex gap-1 text-slate-400">
+                                <button onclick='openPlanModal(${JSON.stringify(plan)})' class="p-1 hover:text-slate-600 cursor-pointer"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
+                                <button onclick="deletePlan('${plan.id}')" class="p-1 hover:text-rose-600 cursor-pointer"><i class="fa-solid fa-trash text-xs"></i></button>
+                            </div>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-sm mb-1">${plan.title}</h3>
+                        <div class="text-xl font-bold text-teal-600 mb-2">${formatCurrency(plan.target)}<span class="text-xs font-normal text-slate-400">/mês</span></div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                        <span><i class="fa-regular fa-calendar mr-1"></i> Vencimento:</span>
+                        <strong class="text-slate-800">${formattedDate}</strong>
+                    </div>
+                `;
+                container.appendChild(planEl);
+            });
+        }
+
+        function openDebtModal(debt = null) {
+            if (debt) {
+                document.getElementById('debt-modal-title').textContent = 'Editar Dívida';
+                document.getElementById('debt-id').value = debt.id;
+                document.getElementById('debt-title').value = debt.title;
+                document.getElementById('debt-amount').value = debt.amount;
+                document.getElementById('debt-date').value = debt.dueDate;
+                document.getElementById('debt-category').value = debt.category || 'Outros';
+            } else {
+                document.getElementById('debt-modal-title').textContent = 'Adicionar Dívida / Empréstimo';
+                document.getElementById('debt-form').reset();
+                document.getElementById('debt-id').value = '';
+                setupDefaultDates();
+            }
+            openModal('modal-debt');
+        }
+
+        function handleSaveDebt(e) {
+            e.preventDefault();
+            const id = document.getElementById('debt-id').value;
+            const title = document.getElementById('debt-title').value;
+            const amount = parseFloat(document.getElementById('debt-amount').value) || 0;
+            const dueDate = document.getElementById('debt-date').value;
+            const category = document.getElementById('debt-category').value;
+
+            if (id) {
+                const index = appState.debts.findIndex(d => d.id === id);
+                if (index !== -1) {
+                    appState.debts[index] = { ...appState.debts[index], title, amount, dueDate, category };
+                }
+            } else {
+                appState.debts.push({ id: 'debt_' + Date.now(), title, amount, dueDate, category, isPaid: false });
+            }
+            saveState();
+            closeModal('modal-debt');
+        }
+
+        function toggleDebtPaid(id) {
+            const index = appState.debts.findIndex(d => d.id === id);
+            if (index !== -1) {
+                appState.debts[index].isPaid = !appState.debts[index].isPaid;
+                saveState();
+            }
+        }
+
+        function deleteDebt(id) {
+            appState.debts = appState.debts.filter(d => d.id !== id);
+            saveState();
+        }
+
+        function filterDebts(status) {
+            debtFilter = status;
+            ['all', 'pending', 'paid'].forEach(s => {
+                const btn = document.getElementById(`debt-filter-${s}`);
+                if (btn) {
+                    btn.className = s === status ? "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white transition cursor-pointer" : "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition cursor-pointer";
+                }
+            });
+            renderDebts();
+        }
+
+        function renderDebts() {
+            const container = document.getElementById('debts-list-container');
+            const summaryText = document.getElementById('debts-summary-text');
+            if (!container) return;
+
+            let filtered = appState.debts;
+            if (debtFilter === 'pending') filtered = appState.debts.filter(d => !d.isPaid);
+            if (debtFilter === 'paid') filtered = appState.debts.filter(d => d.isPaid);
+
+            if (summaryText) summaryText.textContent = `${filtered.length} dívida(s) encontrada(s)`;
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center">
+                        <i class="fa-solid fa-hand-holding-dollar text-slate-300 text-3xl mb-2"></i>
+                        <p class="text-xs text-slate-500">Nenhuma dívida encontrada para este filtro.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(debt => {
+                const formattedDate = debt.dueDate ? debt.dueDate.split('-').reverse().join('/') : '';
+                const item = document.createElement('div');
+                item.className = "p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 transition";
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleDebtPaid('${debt.id}')" title="Marcar como Pago" class="w-6 h-6 rounded-full border-2 ${debt.isPaid ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 text-transparent hover:border-emerald-500'} flex items-center justify-center text-xs transition cursor-pointer">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <div>
+                            <p class="font-bold text-xs ${debt.isPaid ? 'line-through text-slate-400' : 'text-slate-900'}">${debt.title}</p>
+                            <p class="text-[11px] text-slate-400"><i class="fa-regular fa-calendar mr-1"></i> Vencimento: ${formattedDate} | <span class="text-slate-500 font-medium">${debt.category}</span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between sm:justify-end gap-4">
+                        <span class="font-bold text-sm ${debt.isPaid ? 'text-slate-400 line-through' : 'text-amber-600'}">${formatCurrency(debt.amount)}</span>
+                        <div class="flex gap-2 text-slate-400">
+                            <button onclick='openDebtModal(${JSON.stringify(debt)})' class="p-1 hover:text-slate-700 cursor-pointer" title="Editar"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
+                            <button onclick="deleteDebt('${debt.id}')" class="p-1 hover:text-rose-600 cursor-pointer" title="Excluir"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function openTransactionModal() {
+            document.getElementById('transaction-form').reset();
+            selectTxType('expense');
+            setupDefaultDates();
+            openModal('modal-transaction');
+        }
+
+        function selectTxType(type) {
+            document.getElementById('tx-type').value = type;
+            const btnExp = document.getElementById('tx-btn-expense');
+            const btnInc = document.getElementById('tx-btn-income');
+
+            if (type === 'expense') {
+                btnExp.className = "py-1.5 text-xs font-semibold rounded-lg bg-white shadow-sm text-rose-600 transition cursor-pointer";
+                btnInc.className = "py-1.5 text-xs font-semibold rounded-lg text-slate-600 transition cursor-pointer";
+            } else {
+                btnInc.className = "py-1.5 text-xs font-semibold rounded-lg bg-white shadow-sm text-emerald-600 transition cursor-pointer";
+                btnExp.className = "py-1.5 text-xs font-semibold rounded-lg text-slate-600 transition cursor-pointer";
+            }
+        }
+
+        function handleSaveTransaction(e) {
+            e.preventDefault();
+            const type = document.getElementById('tx-type').value;
+            const description = document.getElementById('tx-desc').value;
+            const amount = parseFloat(document.getElementById('tx-amount').value) || 0;
+            const date = document.getElementById('tx-date').value;
+            const category = document.getElementById('tx-category').value;
+
+            appState.transactions.unshift({ id: 'tx_' + Date.now(), type, description, amount, date, category });
+            saveState();
+            closeModal('modal-transaction');
+        }
+
+        function deleteTransaction(id) {
+            appState.transactions = appState.transactions.filter(t => t.id !== id);
+            saveState();
+        }
+
+        function renderTransactions() {
+            const tableBody = document.getElementById('transactions-table-body');
+            const searchInput = document.getElementById('tx-search');
+            const filterTypeSelect = document.getElementById('tx-filter-type');
+            if (!tableBody) return;
+
+            const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
+            const typeVal = filterTypeSelect ? filterTypeSelect.value : 'all';
+
+            let list = appState.transactions.filter(t => {
+                const matchText = t.description.toLowerCase().includes(searchVal) || t.category.toLowerCase().includes(searchVal);
+                const matchType = typeVal === 'all' || t.type === typeVal;
+                return matchText && matchType;
+            });
+
+            tableBody.innerHTML = '';
+            if (list.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400">Nenhuma movimentação registrada.</td></tr>`;
+                return;
+            }
+
+            list.forEach(tx => {
+                const formattedDate = tx.date ? tx.date.split('-').reverse().join('/') : '';
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-semibold text-slate-800">${tx.description}</td>
+                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-medium">${tx.category}</span></td>
+                    <td class="py-3 px-4 text-slate-500">${formattedDate}</td>
+                    <td class="py-3 px-4 text-right font-bold ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}">
+                        ${tx.type === 'income' ? '+' : '-'} ${formatCurrency(tx.amount)}
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <button onclick="deleteTransaction('${tx.id}')" class="text-slate-400 hover:text-rose-600 cursor-pointer" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function renderKPIs() {
+            let totalIncome = appState.transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + (parseFloat(t.amount) || 0), 0);
+            let totalExpenses = appState.transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + (parseFloat(t.amount) || 0), 0);
+            let currentBalance = totalIncome - totalExpenses;
+
+            let totalPlansMonth = appState.plans.reduce((acc, p) => acc + (parseFloat(p.target) || 0), 0);
+            let totalDebtsPending = appState.debts.filter(d => !d.isPaid).reduce((acc, d) => acc + (parseFloat(d.amount) || 0), 0);
+
+            const balanceEl = document.getElementById('kpi-balance');
+            const expensesEl = document.getElementById('kpi-expenses');
+            const expensesCountEl = document.getElementById('kpi-expenses-count');
+            const plansEl = document.getElementById('kpi-plans');
+            const plansCountEl = document.getElementById('kpi-plans-count');
+            const debtsEl = document.getElementById('kpi-debts');
+            const debtsCountEl = document.getElementById('kpi-debts-count');
+
+            if (balanceEl) {
+                balanceEl.textContent = formatCurrency(currentBalance);
+                balanceEl.className = currentBalance < 0 ? "text-xl sm:text-2xl font-bold text-rose-600" : "text-xl sm:text-2xl font-bold text-emerald-600";
+            }
+            if (expensesEl) expensesEl.textContent = formatCurrency(totalExpenses);
+            if (expensesCountEl) expensesCountEl.textContent = `${appState.transactions.filter(t => t.type === 'expense').length} saída(s) registrada(s)`;
+            if (plansEl) plansEl.textContent = formatCurrency(totalPlansMonth);
+            if (plansCountEl) plansCountEl.textContent = `${appState.plans.length} plano(s) ativo(s)`;
+            if (debtsEl) debtsEl.textContent = formatCurrency(totalDebtsPending);
+            if (debtsCountEl) debtsCountEl.textContent = `${appState.debts.filter(d => !d.isPaid).length} dívida(s) pendente(s)`;
+        }
+
+        function renderDashboardWidgets() {
+            const debtsContainer = document.getElementById('dashboard-debts-list');
+            if (debtsContainer) {
+                debtsContainer.innerHTML = '';
+                const pending = appState.debts.filter(d => !d.isPaid);
+                if (pending.length === 0) {
+                    debtsContainer.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Nenhum vencimento pendente.</p>`;
+                } else {
+                    pending.slice(0, 5).forEach(d => {
+                        const formattedDate = d.dueDate ? d.dueDate.split('-').reverse().join('/') : '';
+                        const div = document.createElement('div');
+                        div.className = "flex justify-between items-center p-2.5 bg-slate-50 rounded-xl border border-slate-100";
+                        div.innerHTML = `
+                            <div>
+                                <p class="font-bold text-xs text-slate-800">${d.title}</p>
+                                <p class="text-[10px] text-slate-400">Vence: ${formattedDate}</p>
+                            </div>
+                            <span class="font-bold text-xs text-amber-600">${formatCurrency(d.amount)}</span>
+                        `;
+                        debtsContainer.appendChild(div);
+                    });
+                }
+            }
+
+            const plansGrid = document.getElementById('dashboard-plans-grid');
+            if (plansGrid) {
+                plansGrid.innerHTML = '';
+                if (appState.plans.length === 0) {
+                    plansGrid.innerHTML = `<p class="col-span-full text-xs text-slate-400 py-2">Nenhum plano ativo cadastrado.</p>`;
+                } else {
+                    appState.plans.slice(0, 3).forEach(p => {
+                        const formattedDate = p.dueDate ? p.dueDate.split('-').reverse().join('/') : '';
+                        const div = document.createElement('div');
+                        div.className = "p-3 bg-teal-50/50 border border-teal-100 rounded-xl flex justify-between items-center";
+                        div.innerHTML = `
+                            <div>
+                                <p class="font-bold text-xs text-slate-800">${p.title}</p>
+                                <p class="text-[10px] text-slate-400">Vencimento: ${formattedDate}</p>
+                            </div>
+                            <span class="font-bold text-xs text-teal-700">${formatCurrency(p.target)}</span>
+                        `;
+                        plansGrid.appendChild(div);
+                    });
+                }
+            }
+        }
+
+        function renderCategoryChart() {
+            const ctx = document.getElementById('categoryChart');
+            if (!ctx) return;
+
+            const categories = {};
+            appState.transactions.filter(t => t.type === 'expense').forEach(t => {
+                categories[t.category] = (categories[t.category] || 0) + parseFloat(t.amount);
+            });
+
+            const labels = Object.keys(categories);
+            const data = Object.values(categories);
+
+            if (categoryChartInstance) categoryChartInstance.destroy();
+
+            if (labels.length === 0) {
+                categoryChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { labels: ['Sem despesas'], datasets: [{ data: [1], backgroundColor: ['#e2e8f0'] }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } } }
+                });
+                return;
+            }
+
+            const colors = ['#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#6366f1', '#64748b'];
+            categoryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels: labels, datasets: [{ data: data, backgroundColor: colors.slice(0, labels.length) }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }
+            });
+        }
+
+        function renderAll() {
+            renderKPIs();
+            renderCards();
+            renderPlans();
+            renderDebts();
+            renderTransactions();
+            renderCategoryChart();
+            renderDashboardWidgets();
+        }
+    </script>
+</body>
+</html>
