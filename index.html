@@ -41,7 +41,7 @@
 
                 <!-- Desktop Nav -->
                 <nav class="hidden md:flex items-center space-x-1">
-                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-3 py-2 rounded-lg text-xs font-medium transition-colors text-emerald-600 bg-emerald-50">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-3 py-2 rounded-lg text-xs font-medium transition-colors text-emerald-600 bg-emerald-50 font-semibold">
                         <i class="fa-solid fa-chart-pie mr-1.5"></i>Visão Geral
                     </button>
                     <button onclick="switchTab('cards')" id="nav-cards" class="nav-btn px-3 py-2 rounded-lg text-xs font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100">
@@ -62,10 +62,6 @@
                     <button onclick="openQuickAddModal()" class="px-3.5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition shadow-sm flex items-center gap-1.5 cursor-pointer">
                         <i class="fa-solid fa-plus"></i>
                         <span>+ Adicionar</span>
-                    </button>
-                    <button onclick="confirmResetAll()" title="Zerar todos os dados" class="px-3 py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-200 flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-rotate-left"></i>
-                        <span class="hidden sm:inline">Zerar Tudo</span>
                     </button>
                 </div>
             </div>
@@ -134,7 +130,7 @@
                     <i class="fa-solid fa-arrow-trend-down"></i>
                 </div>
                 <div id="kpi-expenses" class="text-xl sm:text-2xl font-bold text-rose-600">R$ 0,00</div>
-                <p id="kpi-expenses-count" class="text-[11px] text-slate-400 mt-1">Saídas registradas</p>
+                <p id="kpi-expenses-count" class="text-[11px] text-slate-400 mt-1">0 saídas registradas</p>
             </div>
 
             <!-- Total de Planos Mensais -->
@@ -144,7 +140,7 @@
                     <i class="fa-solid fa-repeat"></i>
                 </div>
                 <div id="kpi-plans" class="text-xl sm:text-2xl font-bold text-teal-600">R$ 0,00</div>
-                <p id="kpi-plans-count" class="text-[11px] text-slate-400 mt-1">Planos & Assinaturas</p>
+                <p id="kpi-plans-count" class="text-[11px] text-slate-400 mt-1">0 plano(s) ativo(s)</p>
             </div>
 
             <!-- Dívidas Pendentes -->
@@ -154,7 +150,7 @@
                     <i class="fa-solid fa-hand-holding-dollar"></i>
                 </div>
                 <div id="kpi-debts" class="text-xl sm:text-2xl font-bold text-amber-600">R$ 0,00</div>
-                <p id="kpi-debts-count" class="text-[11px] text-slate-400 mt-1">Devendo a pessoas/bancos</p>
+                <p id="kpi-debts-count" class="text-[11px] text-slate-400 mt-1">0 dívida(s) pendente(s)</p>
             </div>
         </div>
 
@@ -449,21 +445,6 @@
         </div>
     </div>
 
-    <!-- MODAL CONFIRMAR ZERAR -->
-    <div id="modal-confirm-reset" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xs p-6 text-center">
-            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
-            </div>
-            <h3 class="text-base font-bold text-slate-900 mb-1">Zerar Todos os Dados?</h3>
-            <p class="text-xs text-slate-500 mb-5">Esta ação apagará todos os seus cartões, planos, dívidas e lançamentos cadastrados.</p>
-            <div class="flex gap-2 justify-center">
-                <button onclick="closeModal('modal-confirm-reset')" class="w-1/2 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer">Cancelar</button>
-                <button onclick="executeResetAll()" class="w-1/2 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition cursor-pointer">Sim, Zerar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL SELEÇÃO RÁPIDA -->
     <div id="modal-quick-add" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 relative">
@@ -528,41 +509,16 @@
         let categoryChartInstance = null;
 
         window.onload = function() {
-            loadState();
+            resetAppState();
             setupDefaultDates();
             renderAll();
         };
 
-        function loadState() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                try {
-                    appState = JSON.parse(saved);
-                    if (!appState.cards) appState.cards = [];
-                    if (!appState.plans) appState.plans = [];
-                    if (!appState.debts) appState.debts = [];
-                    if (!appState.transactions) appState.transactions = [];
-                } catch(e) {
-                    resetAppState();
-                }
-            } else {
-                resetAppState();
-            }
-        }
-
         function resetAppState() {
-            const today = new Date().toISOString().split('T')[0];
             appState = {
-                cards: [
-                    { id: 'card_1', title: 'Meu Cartão de Crédito', owner: 'Meu Cartão', limit: 2000.00, used: 0.00, dueDay: 10 },
-                    { id: 'card_2', title: 'Cartão da Mãe', owner: 'Cartão da Mãe', limit: 3000.00, used: 0.00, dueDay: 15 }
-                ],
-                plans: [
-                    { id: 'plan_1', title: 'Claro Controle', target: 36.00, dueDate: today }
-                ],
-                debts: [
-                    { id: 'debt_1', title: 'Fatura Netflix', amount: 21.90, dueDate: today, category: 'Assinaturas / Serviços', isPaid: false }
-                ],
+                cards: [],
+                plans: [],
+                debts: [],
                 transactions: []
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
@@ -570,17 +526,6 @@
 
         function saveState() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-            renderAll();
-        }
-
-        function confirmResetAll() {
-            openModal('modal-confirm-reset');
-        }
-
-        function executeResetAll() {
-            localStorage.removeItem(STORAGE_KEY);
-            resetAppState();
-            closeModal('modal-confirm-reset');
             renderAll();
         }
 
@@ -689,7 +634,7 @@
                             <i class="fa-solid fa-credit-card text-xl"></i>
                         </div>
                         <h3 class="text-sm font-bold text-slate-800">Nenhum cartão cadastrado</h3>
-                        <p class="text-xs text-slate-400 mt-1 mb-4">Cadastre seu cartão ou o cartão da sua mãe.</p>
+                        <p class="text-xs text-slate-400 mt-1 mb-4">Cadastre seu cartão de crédito.</p>
                         <button onclick="openCardModal()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
                             <i class="fa-solid fa-plus"></i> Adicionar Cartão
                         </button>
